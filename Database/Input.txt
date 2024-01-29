@@ -1,0 +1,10 @@
+1,John,Doe,18,O,johndoe@example.com
+2,Jane,Smith,17,B,janesmith@example.com
+3,Michael,Johnson,16,O,michaeljohnson@example.com
+4,Emily,Williams,18,A,emilywilliams@example.com
+5,Christopher,Brown,17,B,christopherbrown@example.com
+6,Amy,Miller,16,C,amymiller@example.com
+7,David,Davis,18,A,daviddavis@example.com
+8,Sophia,Anderson,17,B,sophiaanderson@example.com
+9,Matthew,Moore,16,C,matthewmoore@example.com
+10,Olivia,Martin,18,A,oliviamartin@example.com
