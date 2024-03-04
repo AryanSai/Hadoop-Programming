@@ -10,14 +10,13 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClickDistance {
+public class CD {
     public static class CDMapper extends Mapper<Object, Text, Text, Text> {
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String[] tokens = value.toString().split(",");
-            String source = tokens[0];
-            String dest = tokens[1];
-            context.write(new Text(source), new Text(dest+",-1"));
-
+            String source = tokens[0].trim();
+            String dest = tokens[1].trim();
+            context.write(new Text(source), new Text(dest+",0"));
             context.write(new Text(dest), new Text(source+",1"));
         }
     }
@@ -41,7 +40,7 @@ public class ClickDistance {
             if(count0 >= 1 && count1 >= 1){
                 for(String w: from){
                     for(String ws: to){
-                        context.write(new Text(w+"-"+ws),new Text("("+key+")"));
+                        context.write(new Text(w+","),new Text(ws));
                     }
                 }
             }
@@ -49,16 +48,25 @@ public class ClickDistance {
     }
 
   public static void main(String[] args) throws Exception {
-      Configuration conf = new Configuration();
-      conf.set("clickDistance", args[0]);
-      Job job = Job.getInstance(conf, "click distance");
-      job.setJarByClass(ClickDistance.class);
-      job.setMapperClass(CDMapper.class);
-      job.setReducerClass(CDReducer.class);
-      job.setOutputKeyClass(Text.class);
-      job.setOutputValueClass(Text.class);
-      FileInputFormat.addInputPath(job, new Path(args[1]));
-      FileOutputFormat.setOutputPath(job, new Path(args[2]));
-      System.exit(job.waitForCompletion(true) ? 0 : 1);
+    Configuration conf = new Configuration();
+    conf.set("clickDistance", args[0]);
+    int clickDistance = Integer.parseInt(args[0]);
+
+    for (int i = 1; i < clickDistance; i++) {
+        Job job = Job.getInstance(conf, "click distance " + (i + 1));
+        job.setJarByClass(CD.class);
+        job.setMapperClass(CDMapper.class);
+        job.setReducerClass(CDReducer.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(Text.class);
+        if (i == 1) {
+            FileInputFormat.addInputPath(job, new Path(args[1]));
+        } else {
+            FileInputFormat.addInputPath(job, new Path(args[2] + "_" + i));
+        }
+        FileOutputFormat.setOutputPath(job, new Path(args[2] + "_" + (i + 1)));
+
+        job.waitForCompletion(true);
+    }
   }
 }
